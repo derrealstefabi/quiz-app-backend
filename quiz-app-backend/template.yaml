@@ -43,11 +43,11 @@ Resources:
             UserPoolArn: !GetAtt MyCognitoUserPool.Arn
 
 
-  getAllItemsFunctionToTableConnector:
+  getUserQuizesFunctionToTableConnector:
     Type: AWS::Serverless::Connector # More info about Connector Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-connector.html
     Properties:
       Source:
-        Id: getAllItemsFunction
+        Id: getUserQuizesFunction
       Destination:
         Id: QuizTable
       Permissions:
@@ -63,11 +63,11 @@ Resources:
       Permissions:
         - Read
 
-  putItemFunctionToTableConnector:
+  saveQuizFunctionToTableConnector:
     Type: AWS::Serverless::Connector
     Properties:
       Source:
-        Id: putItemFunction
+        Id: saveQuizFunction
       Destination:
         Id: QuizTable
       Permissions:
@@ -88,10 +88,10 @@ Resources:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
   # This is a Lambda function config associated with the source code: get-all-items.js
-  getAllItemsFunction:
+  getUserQuizesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/get_all_items.getAllItemsHandler
+      Handler: src/handlers/get_user_quizes.getUserQuizes
       Runtime: python3.10
       MemorySize: 128
       Timeout: 100
@@ -133,11 +133,11 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is a Lambda function config associated with the source code: put-item.js
-  putItemFunction:
+  # This is a Lambda function config associated with the source code: save_quiz.py
+  saveQuizFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/put_item.putItemHandler
+      Handler: src/handlers/save_quiz.saveQuizHandler
       Runtime: python3.10
       MemorySize: 128
       Timeout: 100
