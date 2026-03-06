@@ -5,12 +5,20 @@ import boto3
 client = boto3.client('dynamodb')
 
 def getByIdHandler(event, context):
-    if event["requestContext"]["http"]["Method"] != "GET":
+    if event["requestContext"]["http"]["method"] != "GET":
         raise Exception(f"getByIdHandler only accept GET method, you tried: {event.httpMethod}")
 
-    id = event["pathParameters"]["id"]
-    data = client.get_item(TableName=os.environ["QUIZ_TABLE"], Key={"id": {"S": id}})
-    item = data["Item"]
+    quiz_id = event["pathParameters"]["id"]
+    print(quiz_id)
+    print(f"QUIZ#{quiz_id}")
+    data = client.query(TableName=os.environ["QUIZ_TABLE"],
+                        KeyConditionExpression="PK = :pk AND begins_with(SK, :skPrefix)",
+                        ExpressionAttributeValues={
+                            ":pk": {"S": f"QUIZ#{quiz_id}"},
+                            ":skPrefix": {"S": "QUESTION#"},
+                        })
+    print(data)
+    item = data["Items"]
     response = {
         "statusCode": 200,
         "body": json.dumps(item)

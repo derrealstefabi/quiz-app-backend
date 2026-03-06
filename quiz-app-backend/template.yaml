@@ -31,6 +31,9 @@ Resources:
           - "*"
         AllowOrigins:
           - "*"
+      DefaultRouteSettings:
+        ThrottlingRateLimit: 5
+        ThrottlingBurstLimit: 20
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
         Authorizers:
@@ -83,6 +86,16 @@ Resources:
       Permissions:
         - Read
         - Write
+
+  createPresignedGetToBucketConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: getPresignedGetFunction
+      Destination:
+        Id: S3ImageBucket
+      Permissions:
+        - Read
 
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -171,7 +184,28 @@ Resources:
         Api:
           Type: HttpApi
           Properties:
-            Path: /createPresignedPost/{object_name}
+            Path: /createPresignedPost
+            Method: GET
+            ApiId: !Ref QuizApi
+
+  # This is a Lambda function config associated with the source code: create_presigned_post.py
+  getPresignedGetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/create_presigned_get.create_presigned_get
+      Runtime: python3.10
+      MemorySize: 128
+      Timeout: 100
+      Description: Create presigned get url for s3.
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          BUCKET_NAME: !Ref S3ImageBucket
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /createPresignedGet
             Method: GET
             ApiId: !Ref QuizApi
 
@@ -216,15 +250,20 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: MyCognitoUserPool
-      AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: true
       Policies:
         PasswordPolicy:
           MinimumLength: 8
-      UsernameAttributes:
-        - email
       AutoVerifiedAttributes:
         - email
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE # Or CONFIRM_WITH_LINK
+        EmailMessage: "Your verification code is {####}."
+        EmailSubject: "Verify your account"
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: true
       # Case sensitivity on the username input for the selected sign-in option.
       UsernameConfiguration:
         CaseSensitive: false
@@ -237,15 +276,16 @@ Resources:
       ClientName: MyCognitoUserPoolClient
       GenerateSecret: false
       AllowedOAuthFlows:
-        - implicit
+        - code
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthScopes:
-        - phone
         - email
         - openid
         - profile
       CallbackURLs:
-        - http://localhost:4321
+        - https://derrealstefabi.github.io/quiz-app/
+      LogoutURLs:
+        - https://derrealstefabi.github.io/quiz-app/
       SupportedIdentityProviders:
         - COGNITO
 
@@ -264,3 +304,15 @@ Outputs:
   CognitoEndpoint:
     Description: "Cognito URL"
     Value: !Sub "https://derrealstefabi-quiz-app.auth.${AWS::Region}.amazoncognito.com/login?client_id=${MyCognitoUserPoolClient}&response_type=token&scope=email+openid+profile&redirect_uri=http://localhost:4321"
+  AwsRegion:
+    Description: "Aws Region"
+    Value: !Ref AWS::Region
+  CognitoUserPoolId:
+    Description: "CognitoUserPoolId"
+    Value: !Ref MyCognitoUserPool
+  CognitoClientId:
+    Description: "CognitoClientId"
+    Value: !Ref MyCognitoUserPoolClient
+  CognitoDomain :
+    Description: "CognitoDomain"
+    Value: !Sub "derrealstefabi-quiz-app.auth.${AWS::Region}.amazoncognito.com"

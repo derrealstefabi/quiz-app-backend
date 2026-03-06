@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: aws-actions/setup-sam@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+      - run: sam build --use-container
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+      - env:
+           GH_TOKEN: ${{ secrets.FRONTEND_REPO_TOKEN }}
+        run: |
+          AWS_OUTPUT=$(aws cloudformation describe-stacks \
+            --stack-name quiz-app-backend \
+            --query "Stacks[0].Outputs" \
+            --output json | jq -c 'map({(.OutputKey): .OutputValue}) | add')
+          
+          echo $AWS_OUTPUT | jq -r '.WebEndpoint' | gh variable set PUBLIC_AWS_ENDPOINT_URL --repo derrealstefabi/quiz-app
+          echo $AWS_OUTPUT | jq -r '.AwsRegion' | gh variable set PUBLIC_AWS_REGION --repo derrealstefabi/quiz-app
+          echo $AWS_OUTPUT | jq -r '.CognitoUserPoolId' | gh variable set PUBLIC_COGNITO_USER_POOL_ID --repo derrealstefabi/quiz-app
+          echo $AWS_OUTPUT | jq -r '.CognitoClientId' | gh variable set PUBLIC_COGNITO_USER_POOL_CLIENT_ID --repo derrealstefabi/quiz-app
+          echo $AWS_OUTPUT | jq -r '.CognitoEndpoint' | gh variable set PUBLIC_COGNITO_DOMAIN --repo derrealstefabi/quiz-app
+  
+          gh workflow run astro.yml \
+            --repo derrealstefabi/quiz-app \
+            --ref main

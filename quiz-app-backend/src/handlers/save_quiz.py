@@ -26,7 +26,7 @@ def saveQuizHandler(event, context):
     now = int(time.time())
     table_name = os.environ["QUIZ_TABLE"]
     user_id = event["requestContext"]["authorizer"]["jwt"]["claims"]["sub"]
-    user_email = event["requestContext"]["authorizer"]["jwt"]["claims"]["email"]
+    user_name = event["requestContext"]["authorizer"]["jwt"]["claims"]["username"]
     print(user_id)
 
     # Get id and name from the body of the request
@@ -56,8 +56,8 @@ def saveQuizHandler(event, context):
                 "TableName": table_name,
                 "Item": {
                     "PK": {"S": f"USER#{user_id}"},
-                    "SK": {"S": f"QUIZ#{name_lc}#{quiz_id}"},
-                    "user_email": {"S": user_email},
+                    "SK": {"S": f"QUIZ#{quiz_id}"},
+                    "user_name": {"S": user_name},
                     "quiz_id": {"S": quiz_id},
                     "quiz_name": {"S": quiz_name},
                     "created_at": {"N": str(now)},
@@ -70,12 +70,12 @@ def saveQuizHandler(event, context):
     for question in questions:
         print(question)
         questionId = randomb32()
-        cat_lc = question["category"].lower()
         choices_list = [{"S": c} for c in (question.get("choices") or [])]
 
         item = {
             "PK": {"S": f"QUIZ#{quiz_id}"},
-            "SK": {"S": "CATEGORY#" + cat_lc + "#QUESTION#" + questionId},
+            "SK": {"S": "QUESTION#" + questionId},
+            "category": {"S": question["category"]},
             "question": {"S": question["question"]},
             "answer": {"S": question["answer"]},
             "choices": {"L": choices_list},
@@ -99,7 +99,9 @@ def saveQuizHandler(event, context):
 
     response = {
         "statusCode": 200,
-        "body": json.dumps(result)
+        "body": json.dumps({
+            'quiz_id': quiz_id
+        })
     }
 
     return response
