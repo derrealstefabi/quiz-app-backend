@@ -10,16 +10,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
       - name: AWS login
         uses: aws-actions/configure-aws-credentials@main
         with:
           aws-region: eu-central-1
           role-to-assume: arn:aws:iam::468996723840:role/gh-action-deploy-quiz-app-backend
-      - name: Deploy CloudFormation Stack
-        uses: aws-actions/aws-cloudformation-github-deploy@v2.0.0
-        with:
-          name: quiz-app-backend
-          template: template.yaml
+
+      # Build inside Docker containers
+      - run: sam build --use-container
+      # Prevent prompts and failure when the stack is unchanged
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
       - env:
            GH_TOKEN: ${{ secrets.FRONTEND_REPO_TOKEN }}
         run: |
