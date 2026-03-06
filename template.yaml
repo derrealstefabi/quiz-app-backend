@@ -104,7 +104,8 @@ Resources:
   getUserQuizesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/get_user_quizes.getUserQuizes
+      CodeUri: src/handlers
+      Handler: get_user_quizes.getUserQuizes
       Runtime: python3.10
       MemorySize: 128
       Timeout: 100
@@ -127,7 +128,8 @@ Resources:
   getByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/get_by_id.getByIdHandler
+      CodeUri: src/handlers
+      Handler: get_by_id.getByIdHandler
       Runtime: python3.10
       MemorySize: 128
       Timeout: 100
@@ -150,7 +152,8 @@ Resources:
   saveQuizFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/save_quiz.saveQuizHandler
+      CodeUri: src/handlers
+      Handler: save_quiz.saveQuizHandler
       Runtime: python3.10
       MemorySize: 128
       Timeout: 100
@@ -171,7 +174,8 @@ Resources:
   getPresignedPostFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/create_presigned_post.create_presigned_post
+      CodeUri: src/handlers
+      Handler: create_presigned_post.create_presigned_post
       Runtime: python3.10
       MemorySize: 128
       Timeout: 100
@@ -192,7 +196,8 @@ Resources:
   getPresignedGetFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/create_presigned_get.create_presigned_get
+      CodeUri: src/handlers
+      Handler: create_presigned_get.create_presigned_get
       Runtime: python3.10
       MemorySize: 128
       Timeout: 100
