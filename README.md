@@ -1,4 +1,6 @@
 # quiz-app-backend
+[![.github/workflows/deploy.yml](https://github.com/derrealstefabi/quiz-app-backend/actions/workflows/deploy.yml/badge.svg)](https://github.com/derrealstefabi/quiz-app-backend/actions/workflows/deploy.yml)
+
 Backend for the [quiz-app](https://github.com/derrealstefabi/quiz-app) repository.
 Contains the AWS infrastructure needed to save and load quizzes.
 
