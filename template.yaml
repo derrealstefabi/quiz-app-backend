@@ -255,6 +255,8 @@ Resources:
           MinimumLength: 8
       AutoVerifiedAttributes:
         - email
+      AliasAttributes:
+        - email
       VerificationMessageTemplate:
         DefaultEmailOption: CONFIRM_WITH_CODE # Or CONFIRM_WITH_LINK
         EmailMessage: "Your verification code is {####}."
