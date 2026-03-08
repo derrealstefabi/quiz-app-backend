@@ -35,7 +35,7 @@ jobs:
           echo $AWS_OUTPUT | jq -r '.AwsRegion' | gh variable set PUBLIC_AWS_REGION --repo derrealstefabi/quiz-app --env github-pages
           echo $AWS_OUTPUT | jq -r '.CognitoUserPoolId' | gh variable set PUBLIC_COGNITO_USER_POOL_ID --repo derrealstefabi/quiz-app --env github-pages
           echo $AWS_OUTPUT | jq -r '.CognitoClientId' | gh variable set PUBLIC_COGNITO_USER_POOL_CLIENT_ID --repo derrealstefabi/quiz-app --env github-pages
-          echo $AWS_OUTPUT | jq -r '.CognitoEndpoint' | gh variable set PUBLIC_COGNITO_DOMAIN --repo derrealstefabi/quiz-app --env github-pages
+          echo $AWS_OUTPUT | jq -r '.CognitoDomain' | gh variable set PUBLIC_COGNITO_DOMAIN --repo derrealstefabi/quiz-app --env github-pages
   
           gh workflow run astro.yml \
             --repo derrealstefabi/quiz-app \

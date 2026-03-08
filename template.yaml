@@ -303,9 +303,6 @@ Outputs:
   WebEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
     Value: !Sub "https://${QuizApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"
-  CognitoEndpoint:
-    Description: "Cognito URL"
-    Value: !Sub "https://derrealstefabi-quiz-app.auth.${AWS::Region}.amazoncognito.com/login?client_id=${MyCognitoUserPoolClient}&response_type=token&scope=email+openid+profile&redirect_uri=https://derrealstefabi.github.io/quiz-app/"
   AwsRegion:
     Description: "Aws Region"
     Value: !Ref AWS::Region
