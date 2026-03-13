@@ -12,6 +12,17 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
+Parameters:
+  CognitoCallbackUrl:
+    Type: String
+    Default: localhost:4321
+  CognitoUserPoolDomain:
+    Type: String
+    Default: derrealstefabi-quiz-app-dev
+  QuizTableName:
+    Type: String
+    Default: derrealstefabi-quiz-app-quiz-table-dev
+
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 Resources:
@@ -216,7 +227,7 @@ Resources:
   QuizTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: QuizTable
+      TableName: !Sub ${QuizTableName}
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: PK
@@ -285,9 +296,9 @@ Resources:
         - openid
         - profile
       CallbackURLs:
-        - https://derrealstefabi.github.io/quiz-app/
+        - !Sub ${CognitoCallbackUrl}
       LogoutURLs:
-        - https://derrealstefabi.github.io/quiz-app/
+        - !Sub ${CognitoCallbackUrl}
       SupportedIdentityProviders:
         - COGNITO
 
@@ -295,7 +306,7 @@ Resources:
   MyCognitoUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain: derrealstefabi-quiz-app  # Must be globally unique
+      Domain: !Sub ${CognitoUserPoolDomain}  # Must be globally unique
       UserPoolId: !Ref MyCognitoUserPool
 
 
